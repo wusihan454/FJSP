@@ -1,0 +1,7 @@
+﻿  solver.cpp
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(98): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(130): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(172): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(196): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(198): warning C4018: “<”: 有符号/无符号不匹配
+  FJSP.vcxproj -> C:\Users\belle\Desktop\FJSP\Debug\FJSP.exe
