@@ -48,6 +48,7 @@ private:
 	int** T;
 	procedure** message;
 	workpiece** job;
+	int** tabu_change_machine;//禁忌交换机器
 	vector<vector<operation>> machine;
 	vector<vector<block>> critical_block;
 	int Cmax;
@@ -56,6 +57,9 @@ private:
 	void random_init();//随机构造初始解
 	void sum_critical_path();
 	void sumQ();
+	void findmove();
+	int move_front(int a,int u,int v);//把机器a上的u挪动到v之后
+	int move_back(int a,int u,int v);//把机器a上的v挪动到u之前
 	//void sum_critical_block();
 public:
 	solver(int a, int b, int c, int* d, procedure** e,int** f);
