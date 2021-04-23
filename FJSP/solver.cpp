@@ -10,6 +10,7 @@ solver::solver(int a, int b, int c, int* d, procedure** e, int** f) :job_count(a
 	}
 	machine.resize(machine_count);
 	critical_block.resize(machine_count);
+	tabu_section.resize(machine_count);
 }
 solver::~solver()
 {
@@ -24,7 +25,6 @@ solver::~solver()
 		delete[] job[i];
 	delete[] job;
 }
-
 void solver::random_init()//Ëæ»ú²úÉú³õÊ¼½â
 {
 	for (int i = 0; i < job_count; i++)
@@ -44,9 +44,8 @@ void solver::random_init()//Ëæ»ú²úÉú³õÊ¼½â
 	for (int i = 0; i < job_count; i++)
 		Q[i] = i;
 	random_shuffle(Q, Q + job_count);
-	//for (int i = 0; i < job_count; i++) printf("%d ", Q[i]);
-	//printf("\n");
-	Cmax = 0;
+	for (int i = 0; i < job_count; i++) printf("%d ", Q[i]);
+	printf("\n");
 	for (int i = 0; i < job_count; i++)
 	{
 		int choose = Q[i];
@@ -64,36 +63,75 @@ void solver::random_init()//Ëæ»ú²úÉú³õÊ¼½â
 			}
 			job[choose][j].start_time = jp < mp ? mp : jp;
 			machine[select_machine].push_back(operation(choose, j, job[choose][j].start_time, job[choose][j].dura_time));
-			int count = 1;
-			if (j == procedure_count[choose] - 1)
-			{
-				if (Cmax < job[choose][j].start_time + job[choose][j].dura_time)
-				{
-					Cmax = job[choose][j].start_time + job[choose][j].dura_time;
-					C_m = select_machine;
-					C_index = temp;
-					count = 1;
-				}
-				else if (Cmax == job[choose][j].start_time + job[choose][j].dura_time)
-				{
-					count++;
-					if (rand() % count == 0)
-					{
-						Cmax = job[choose][j].start_time + job[choose][j].dura_time;
-						C_m = select_machine;
-						C_index = temp;
-					}
-				}
-			}
 		}
 	}
 	delete[] Q;
-
 }
-
+void solver::sumR()
+{
+	queue<du_0> Q;
+	for (int i = 0; i < machine.size(); i++)
+	{
+		for (int j = 0; j < machine[i].size(); j++)
+		{
+			machine[i][j].R = -1;
+		}
+	}
+	for (int i = 0; i < machine.size(); i++)
+	{
+		if (machine[i].empty()) continue;
+		int length = machine[i].size();
+		machine[i][0].du = machine[i][0].seq > 0 ? 1 : 0;
+		if (machine[i][0].du == 0)
+		{
+			machine[i][0].R = 0;
+			Q.push(du_0(i, 0));
+		}
+		for (int j = 1; j < length; j++)
+		{
+			machine[i][j].du = machine[i][j].seq > 0 ? 2 : 1;
+		}
+	}
+	while (!Q.empty())
+	{
+		du_0 temp = Q.front();
+		int m = machine[temp.machine][temp.index].R + machine[temp.machine][temp.index].dura_time;
+		if (temp.index+1< machine[temp.machine].size())
+		{
+			machine[temp.machine][temp.index + 1].du--;
+			if (machine[temp.machine][temp.index + 1].R < m)
+				machine[temp.machine][temp.index + 1].R = m;
+			if (machine[temp.machine][temp.index + 1].du == 0) Q.push(du_0(temp.machine, temp.index + 1));
+		}
+		int i = machine[temp.machine][temp.index].job;
+		int j = machine[temp.machine][temp.index].seq;
+		if (j+1<procedure_count[i])
+		{
+			int dex = job[i][j + 1].machine;
+			for (int k = 0; k < machine[dex].size(); k++)
+			{
+				if (machine[dex][k].job == i && machine[dex][k].seq == j + 1)
+				{
+					machine[dex][k].du--;
+					if (machine[dex][k].du == 0) Q.push(du_0(dex, k));
+					if (machine[dex][k].R < m) machine[dex][k].R = m;
+					break;
+				}
+			}
+		}
+		Q.pop();
+	}
+}
 void solver::sumQ()
 {
 	queue<du_0> Q;
+	for (int i = 0; i < machine.size(); i++)
+	{
+		for (int j = 0; j < machine[i].size(); j++)
+		{
+			machine[i][j].Q = -1;
+		}
+	}
 	for (int i = 0; i < machine.size(); i++)
 	{
 		if (machine[i].empty()) continue;
@@ -140,8 +178,20 @@ void solver::sumQ()
 		Q.pop();
 	}
 }
-
-int solver::move_back(int a, int u, int v)//°Ñ»úÆ÷aÉÏµÄuÅ²¶¯µ½vÖ®ºó,u,v¶¼ÊÇ¶ÔÓ¦µÄÎ»ÖÃÏÂ±ê 
+void solver::sumCmax()
+{
+	Cmax = 0;
+	for (int i = 0; i < machine_count; i++)
+	{
+		int size = machine[i].size();
+		if (size > 0)
+		{
+			int temp = machine[i][size - 1].R + machine[i][size - 1].Q + machine[i][size - 1].dura_time;
+			Cmax = temp > Cmax ? temp : Cmax;
+		}
+	}
+}
+int solver::try_to_move_back(int a, int u, int v)//°Ñ»úÆ÷aÉÏµÄuÅ²¶¯µ½vÖ®ºó,u,v¶¼ÊÇ¶ÔÓ¦µÄÎ»ÖÃÏÂ±ê 
 {
 	vector<int> R_copy;
 	vector<int> Q_copy;
@@ -258,6 +308,8 @@ int solver::move_back(int a, int u, int v)//°Ñ»úÆ÷aÉÏµÄuÅ²¶¯µ½vÖ®ºó,u,v¶¼ÊÇ¶ÔÓ¦µ
 	}
 	if(m_seq>=0) js = machine[m_seq][k].dura_time + machine[m_seq][k].Q;
 	ms= machine[a][u].dura_time + Q_copy[u - u];
+	Q_copy[v - u] = js < ms ? ms : js;
+
 	for (int i = v - 1; i >= u + 1; i--)
 	{
 		js = 0, ms = 0;
@@ -288,7 +340,7 @@ int solver::move_back(int a, int u, int v)//°Ñ»úÆ÷aÉÏµÄuÅ²¶¯µ½vÖ®ºó,u,v¶¼ÊÇ¶ÔÓ¦µ
 	}
 	return max;
 }
-int solver::move_front(int a, int u, int v)//vÅ²¶¯µ½uµÄÇ°ÃæÈ¥
+int solver::try_to_move_front(int a, int u, int v)//vÅ²¶¯µ½uµÄÇ°ÃæÈ¥
 {
 	vector<int> R_copy;
 	vector<int> Q_copy;
@@ -350,11 +402,11 @@ int solver::move_front(int a, int u, int v)//vÅ²¶¯µ½uµÄÇ°ÃæÈ¥
 		if (y >= 0)
 		{
 			m_seq = job[x][y].machine;
-			for (int i = 0; i < machine[m_seq].size(); i++)
+			for (int j = 0; j < machine[m_seq].size(); j++)
 			{
-				if (machine[m_seq][i].job == x && machine[m_seq][i].seq == y)
+				if (machine[m_seq][j].job == x && machine[m_seq][j].seq == y)
 				{
-					k = i; break;
+					k = j; break;
 				}
 			}
 		}
@@ -429,9 +481,8 @@ int solver::move_front(int a, int u, int v)//vÅ²¶¯µ½uµÄÇ°ÃæÈ¥
 		}
 	}
 	if (m_seq >= 0) js = machine[m_seq][k].dura_time + machine[m_seq][k].Q;
-	ms = machine[a][u].dura_time +Q_copy[u];
+	ms = machine[a][u].dura_time +Q_copy[u-u];
 	Q_copy[v- u] = js < ms ? ms : js;
-
 	int max = 0;
 	for (int i = u; i <= v; i++)
 	{
@@ -440,77 +491,388 @@ int solver::move_front(int a, int u, int v)//vÅ²¶¯µ½uµÄÇ°ÃæÈ¥
 	}
 	return max;
 }
-void solver::findmove()
+bool solver::is_move_back_legal(int i, int u, int v)
 {
+	int x = machine[i][u].job;
+	int y = machine[i][u].seq + 1;//ºóĞø×÷Òµ
+	int m_seq = -1;
+	int m_index = -1;
+	if (y < procedure_count[x])
+	{
+		m_seq = job[x][y].machine;
+		for (int t = 0; t < machine[m_seq].size(); t++)
+		{
+			if (machine[m_seq][t].job == x && machine[m_seq][t].seq == y)
+			{
+				m_index = t; break;
+			}
+		}
+	}
+	if (m_seq != -1)
+	{
+		for (int t = v; t >= u+1; t--)
+		{
+			if (machine[i][t].Q <= machine[m_seq][m_index].Q)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+bool solver::is_move_front_legal(int i, int u, int v)
+{
+	int x = machine[i][v].job;
+	int y = machine[i][v].seq - 1;
+	int m_seq = -1;
+	int m_index = -1;
+	if (y >= 0)
+	{
+		m_seq = job[x][y].machine;
+		for (int t = 0; t < machine[m_seq].size(); t++)
+		{
+			if (machine[m_seq][t].job == x && machine[m_seq][t].seq == y)
+			{
+				m_index = t; break;
+			}
+		}
+	}
+	if (m_seq != -1)
+	{
+		for (int t = u; t <= v- 1; t++)
+		{
+			if (machine[i][t].R <= machine[m_seq][m_index].R)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+bool solver::tabued_by_tabu_section(int a, int u, int v,bool front,int t)
+{
+	vector<int> w;
+	w.resize(v - u + 1);
+	if (front)//vÏòÇ°²åÈë
+	{
+		w[0] = v;
+		for (int i = 1; i < v - u + 1; i++)
+		{
+			w[i] = u - 1 + i;
+		}
+	}
+	else
+	{
+		for (int i = 0; i < v - u ; i++)
+		{
+			w[i] = u +1 + i;
+		}
+		w[v - u] = u;
+	}
+	for (auto iter = tabu_section[a].begin(); iter != tabu_section[a].end();)
+	{
+		if (iter->tabu_time < t)
+		{
+			iter = tabu_section[a].erase(iter);
+			continue;
+		}
+		if (iter->m.size() < v - u + 1)
+		{
+			++iter;
+			continue;
+		}
+		int j = 0, k = 0;
+		while (j < iter->m.size() && k < v - u + 1)
+		{
+			if (iter->m[j].job == machine[a][w[k]].job && iter->m[j].seq == machine[a][w[k]].seq)
+			{
+				j++;
+				k++;
+			}
+			else {
+				j = j - k + 1;
+				k = 0;
+			}
+		}
+		if (k == v - u + 1) return true;
+		++iter;
+	}
+	return false;
+}
+insert solver::findmove(int ITER)
+{
+	int best_c =INT16_MAX;
+	int best_c_tabu= INT16_MAX;
+	vector<insert> best_move;
+	vector<insert> best_move_tabu;
 	for (int i = 0; i < critical_block.size(); i++)
 	{
 		for (int j = 0; j < critical_block[i].size(); j++)
 		{
-			if (critical_block[i][j].start_index == critical_block[i][j].end_index) continue;
+			int start = critical_block[i][j].start_index;
+			int end = critical_block[i][j].end_index;
+			if (start == end) continue;//Ö®ºóĞŞ¸ÄÎª½»»»»úÆ÷µÄÁìÓò¶¯×÷
+			else
+			{
+				if (start + 1 == end)//Ö»ÓĞÁ½¸öÔªËØµ¥¶À¿¼ÂÇ
+				{
+					printf("%d %d %d back    ", i, start, end);
+					if (is_move_back_legal(i, start, end))
+					{
+						printf("ºÏ·¨ ");
+						int temp = try_to_move_back(i, start, end);
+						if (tabued_by_tabu_section(i, start, end, false, ITER))
+						{
+							printf("±»½û¼É%d \n",temp);
+							if (temp < best_c_tabu)
+							{
+								best_c_tabu = temp;
+								best_move_tabu.clear();
+								best_move_tabu.push_back(insert(i, false, start, end));
+							}
+							else if (temp == best_c_tabu)  best_move_tabu.push_back(insert(i, false, start, end));
+						}
+						else
+						{
+							printf("Ã»±»½û¼É%d \n",temp);
+							if (temp < best_c)
+							{
+								best_c = temp;
+								best_move.clear();
+								best_move.push_back(insert(i, false, start, end));
+							}
+							else if (temp == best_c)  best_move.push_back(insert(i, false, start, end));
+						}
+					}
+					else printf("²»ºÏ·¨\n");
+					continue;
+				}
+				for (int k = start + 1; k <= end - 1; k++)//¶ÔÓÚÃ¿Ò»¸öÖĞ¼äµÄÔªËØ£¬·Ö±ğÊÔÌ½ÒÆ¶¯µ½×îÇ°Ãæ×îºóÃæ
+				{
+					printf("%d %d %d back    ", i,k, end);
+					if (is_move_back_legal(i, k,end))//ºÏ·¨ĞÔ
+					{
+						printf("ºÏ·¨ ");
+						int temp= try_to_move_back(i,k,end);
+						if (tabued_by_tabu_section(i, k, end, false, ITER))
+						{
+							printf("±»½û¼É%d \n", temp);
+							if (temp < best_c_tabu)
+							{
+								best_c_tabu = temp;
+								best_move_tabu.clear();
+								best_move_tabu.push_back(insert(i, false, k, end));
+							}
+							else if (temp == best_c_tabu)  best_move_tabu.push_back(insert(i, false, k, end));
+						}
+						else
+						{
+							printf("Ã»±»½û¼É%d \n", temp);
+							if (temp < best_c)
+							{
+								best_c = temp;
+								best_move.clear();
+								best_move.push_back(insert(i, false, k, end));
+							}
+							else if (temp == best_c)  best_move.push_back(insert(i, false, k, end));
+						}
+					}
+					else printf("²»ºÏ·¨\n");
+					printf("%d %d %d front    ", i, start, k);
+					if (is_move_front_legal(i,start,k))
+					{
+						printf("ºÏ·¨ ");
+						int temp = try_to_move_front(i,start,k);
+						if (tabued_by_tabu_section(i, start, k, true, ITER))
+						{
+							printf("±»½û¼É%d \n", temp);
+							if (temp < best_c_tabu)
+							{
+								best_c_tabu = temp;
+								best_move_tabu.clear();
+								best_move_tabu.push_back(insert(i, true, start, k));
+							}
+							else if (temp == best_c_tabu)  best_move_tabu.push_back(insert(i, true, start, k));
 
+						}
+						else
+						{
+							printf("Ã»±»½û¼É%d \n", temp);
+							if (temp < best_c)
+							{
+								best_c = temp;
+								best_move.clear();
+								best_move.push_back(insert(i, true, start, k));
+							}
+							else if (temp == best_c)  best_move.push_back(insert(i, true, start, k));
+						}
+					}
+					else printf("²»ºÏ·¨ \n");
+				}
+
+				for (int k = start + 2; k <= end; k++)//¶ÔÓÚstartÒÆ¶¯ÆäËûËùÓĞÔªËØÖ®ºó
+				{
+					printf("%d %d %d back    ", i, start, k);
+					if (is_move_back_legal(i, start, k))
+					{
+						printf("ºÏ·¨ ");
+						int temp = try_to_move_back(i, start,k);
+						if (tabued_by_tabu_section(i, start, k, false, ITER))
+						{
+							printf("±»½û¼É%d \n", temp);
+							if (temp < best_c_tabu)
+							{
+								best_c_tabu = temp;
+								best_move_tabu.clear();
+								best_move_tabu.push_back(insert(i, false, start, k));
+							}
+							else if (temp == best_c_tabu)  best_move_tabu.push_back(insert(i, false, start, k));
+						}
+						else
+						{
+							printf("Ã»±»½û¼É%d \n", temp);
+							if (temp < best_c)
+							{
+								best_c = temp;
+								best_move.clear();
+								best_move.push_back(insert(i, false, start, k));
+							}
+							else if (temp == best_c)  best_move.push_back(insert(i, false, start, k));
+						}
+					}
+					else {					
+						printf("²»ºÏ·¨ \n");
+						break;
+					}
+				}
+				for (int k = end - 2; k >= start; k--)//¶ÔÓÚendÒÆ¶¯ÆäËûËùÓĞÔªËØÖ®Ç°
+				{
+					printf("%d %d %d front    ", i, k, end);
+					if (is_move_front_legal(i, k, end))
+					{
+						printf("ºÏ·¨ ");
+						int temp = try_to_move_front(i, k, end);
+						if (tabued_by_tabu_section(i, k, end,true, ITER))
+						{
+							printf("±»½û¼É%d \n", temp);
+							if (temp < best_c_tabu)
+							{
+								best_c_tabu = temp;
+								best_move_tabu.clear();
+								best_move_tabu.push_back(insert(i, true, k, end));
+							}
+							else if (temp == best_c_tabu)  best_move_tabu.push_back(insert(i, true,k,end));
+						}
+						else
+						{
+							printf("Ã»±»½û¼É%d \n", temp);
+							if (temp < best_c)
+							{
+								best_c = temp;
+								best_move.clear();
+								best_move.push_back(insert(i, true, k, end));
+							}
+							else if (temp == best_c)  best_move.push_back(insert(i, true, k, end));
+						}
+					}
+					else {
+						printf("²»ºÏ·¨\n ");
+						break;
+					}
+				}
+			}
 		}
 	}
-}
-void solver::sum_critical_path() //´ÓCmaxÏòÇ°»ØËİ,
-{
-	//ÕâÑù×öÖ»¼ÇÂ¼ÁËÒ»Ìõ¹Ø¼üÂ·¾¶£»
-	/*for (int i = 0; i < machine.size(); i++)
-		critical_block[i].clear();
-	int i = C_m;
-	int j = C_index;
-	while (machine[i][j].start_time != 0)
+	
+	if ((best_c_tabu < best_c && best_c_tabu < best_Cmax)|| best_move.empty())//ÆÆ³ı½û¼É
 	{
-
-		int start = j;
-		int end = j;
-		while (j - 1 >= 0)
+		int select=rand() % best_move_tabu.size();
+		return best_move_tabu[select];
+	}
+	else//Ñ¡ÔñÃ»±»½û¼ÉµÄ£¬È»ºó°ÑËû½û¼Éµô
+	{
+		int select = rand() % best_move.size();
+		//°ÑÕâ¸öĞòÁĞ²åÈë½û¼É±í
+		printf("%d %d***\n", select,best_c);
+		vector<int> w;
+		int V, U;
+		V = best_move[select].v;
+		U = best_move[select].u;
+		w.resize(V-U + 1);
+		if (best_move[select].front)//vÏòÇ°²åÈë
 		{
-			if (machine[i][j].start_time != machine[i][j - 1].start_time + machine[i][j - 1].dura_time) break;
-			start = j - 1;
-			j--;
-		}
-		int x = critical_block[i].size() - 1;
-		if (x >= 0 && critical_block[i][x].start_index == end + 1)
-			critical_block[i][x].start_index = start;
-		else critical_block[i].push_back(block(start, end));
-		printf("%d %d %d\n", i, start, end);
-		if (machine[i][start].start_time == 0)
-		{
-			j = -1;
-			break;
+			w[0] = V;
+			for (int i = 1; i < V-U+1; i++)
+			{
+				w[i] = U- 1 + i;
+			}
 		}
 		else
 		{
-			int temp_j = machine[i][start].job;
-			int temp_s = machine[i][start].seq - 1;
-			if (temp_s < 0) printf("error%d %d\n", i, start);
-			i = job[temp_j][temp_s].machine;
-			for (int k = 0; k < machine[i].size(); k++)
-				if (machine[i][k].job == temp_j && machine[i][k].seq == temp_s)
+			for (int i = 0; i < V - U; i++)
+			{
+				w[i] = U + 1 + i;
+			}
+			w[V - U] = U;
+		}
+		int b=best_move[select].i;
+		TABU_section temp;
+		temp.tabu_time = ITER + 5;//½û¼É²½³¤Îª5
+		for (int i = 0; i < V - U + 1; i++)
+		{
+			temp.m.push_back(job_seq(machine[b][w[i]].job, machine[b][w[i]].seq));
+		}
+		for (auto l : temp.m)
+		{
+			printf("%d %d    ", l.job, l.seq);
+		}
+		tabu_section[b].push_back(temp);
+		return best_move[select];
+	}
+}
+void solver::makemove(int a,bool front,int u,int v)
+{
+	if (front)
+	{
+		machine[a].insert(machine[a].begin() + u, machine[a][v]);
+		machine[a].erase(machine[a].begin() + v + 1);
+	}
+	else
+	{
+		machine[a].insert(machine[a].begin() + v+1, machine[a][u]);
+		machine[a].erase(machine[a].begin() + u);
+	}
+}
+void solver::sum_critical_path()
+{
+	sumQ();
+	sumR();
+	sumCmax();
+	for (int i = 0; i < machine.size(); i++)
+		critical_block[i].clear();
+	for (int i = 0; i < machine.size(); i++)
+	{
+		for (int j = 0; j < machine[i].size();)
+		{
+			if (machine[i][j].Q + machine[i][j].R + machine[i][j].dura_time == Cmax)
+			{
+				int start = j;
+				int end = j;
+				j++;
+				while (j < machine[i].size() && machine[i][j].Q + machine[i][j].R + machine[i][j].dura_time == Cmax&& machine[i][j].start_time== machine[i][j-1].start_time+ machine[i][j - 1].dura_time)
 				{
-					j = k;
-					break;
+					end = j;
+					j++;
 				}
+				critical_block[i].push_back(block(start, end));
+			}
+			else j++;
 		}
 	}
-	if (j != -1)
-	{
-		int x = critical_block[i].size() - 1;
-		if (x >= 0 && critical_block[i][x].start_index == j + 1)
-			critical_block[i][x].start_index = j;
-		else critical_block[i].push_back(block(j, j));
-	}*/
 }
-
 void solver::test()
 {
 	random_init();
-	/*for (int i = 0; i < job_count; i++)
-	{
-		for (int j = 0; j < procedure_count[i] * candidate; j++)
-			printf("%d %d   ", message[i][j].machine, message[i][j].time);
-		printf("\n");
-	}*/
 	for (int i = 0; i < machine.size(); i++)
 	{
 		for (int j = 0; j < machine[i].size(); j++)
@@ -518,14 +880,7 @@ void solver::test()
 		printf("\n");
 	}
 	printf("\n\n\n");
-	for (int i = 0; i < job_count; i++)
-	{
-		for (int j = 0; j < procedure_count[i]; j++)
-			printf("%d %d %d   ", job[i][j].machine, job[i][j].start_time, job[i][j].dura_time);
-		printf("\n");
-	}
 	sum_critical_path();
-	sumQ();
 	for (int i = 0; i < critical_block.size(); i++)
 	{
 		printf("%d:", i);
@@ -533,11 +888,52 @@ void solver::test()
 			printf(" %d %d ", critical_block[i][j].start_index, critical_block[i][j].end_index);
 		printf("\n");
 	}
+	printf("\n\n");
 	for (int i = 0; i < machine.size(); i++)
 	{
 		for (int j = 0; j < machine[i].size(); j++)
 			printf("%d ", machine[i][j].R + machine[i][j].Q + machine[i][j].dura_time);
 		printf("\n");
 	}
+	printf("\n\n");
+	/*for (int i = 0; i < machine.size(); i++)
+	{
+		for (int j = 0; j < machine[i].size(); j++)
+			printf("%d %d    ", machine[i][j].R , machine[i][j].Q );
+		printf("\n");
+	}*/
+	printf("%d swdfgh\n", Cmax);
+	int iter = 1;
+	insert temp=findmove(iter);
+	makemove(temp.i, temp.front, temp.u, temp.v);
+	sum_critical_path();
+	for (int i = 0; i < machine.size(); i++)
+	{
+		for (int j = 0; j < machine[i].size(); j++)
+			printf("%d %d %d %d  ", machine[i][j].job, machine[i][j].seq, machine[i][j].R, machine[i][j].dura_time);
+		printf("\n");
+	}
+	printf("\n\n");
+	for (int i = 0; i < critical_block.size(); i++)
+	{
+		printf("%d:", i);
+		for (int j = 0; j < critical_block[i].size(); j++)
+			printf(" %d %d ", critical_block[i][j].start_index, critical_block[i][j].end_index);
+		printf("\n");
+	}
+	printf("\n\n");
+	for (int i = 0; i < machine.size(); i++)
+	{
+		for (int j = 0; j < machine[i].size(); j++)
+			printf("%d ", machine[i][j].R + machine[i][j].Q + machine[i][j].dura_time);
+		printf("\n");
+	}
+	printf("\n\n");
+	/*for (int i = 0; i < machine.size(); i++)
+	{
+		for (int j = 0; j < machine[i].size(); j++)
+			printf("%d %d    ", machine[i][j].R, machine[i][j].Q);
+		printf("\n");
+	}*/
 	printf("%d", Cmax);
 }
