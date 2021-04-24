@@ -14,13 +14,12 @@ struct operation
 {
 	int job;//工件
 	int seq;//工序
-	int start_time;//开始时间
 	int dura_time;//持续时间
 	int Q;
 	int R;//从起点到当前操作的时间
 	int du;//后续节点的个数
 	operation() {}
-	operation(int a, int c, int d,int e) :job(a),seq(c), start_time(d), dura_time(e)
+	operation(int a, int c, int d,int e) :job(a),seq(c),R(d), dura_time(e)
 	{
 	}
 };
