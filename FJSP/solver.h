@@ -44,6 +44,11 @@ struct insert
 	int v;
 	insert(int a, bool b, int c, int d) :i(a), front(b), u(c), v(d){}
 };
+struct change_machine//将a机器上的u挪动到b机器的v之后
+{
+	int a; int u; int b; int v; int t;
+	change_machine(int a1,int u1,int b1,int v1,int t1):a(a1),u(u1),b(b1),v(v1),t(t1){ }
+};
 struct job_seq
 {
 	int job;
@@ -55,6 +60,7 @@ struct TABU_section
 	int tabu_time;//禁忌到tabu_time
 	vector<job_seq> m;
 };
+
 class solver {
 private:
 	int job_count;
@@ -75,16 +81,21 @@ private:
 	void sumQ();
 	void sumR();
 	void sumCmax();
-	insert findmove(int ITER);//t表示当前的迭代次数
+	pair<insert,int> findmove(int ITER);//t表示当前的迭代次数，返回的second为最好的最好的优化值
+	pair<change_machine,int> find_change_machine(int ITER);//返回的second为最好的最好的优化值
 	void makemove(int a, bool front, int u, int v);
 	bool tabued_by_tabu_section(int i, int u, int v, bool front,int t);
 	int try_to_move_front(int a,int u,int v);//v挪动到u的前面去
 	int try_to_move_back(int a,int u,int v); //u挪动到v之后
+	pair<int,int> try_to_change_machine(int a, int u, int b, int t);//试图将a机器上的u挪动到b机器,且在b机器其执行时间为t
 	bool is_move_front_legal(int i, int u, int v);
 	bool is_move_back_legal(int i, int u, int v);
+	void makechange(int a,int u,int b,int v,int t);
 	//void sum_critical_block();
 public:
 	solver(int a, int b, int c, int* d, procedure** e,int** f);
-	void test();
+	void test_change_machine();
+	void test_insert();
+	void test_mix();
 	~solver();
 };

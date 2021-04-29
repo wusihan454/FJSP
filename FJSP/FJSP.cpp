@@ -9,7 +9,7 @@ int main()
 	char inputfile[256] = "m.txt.txt";
 	READER.loadfile(inputfile);
 	solver SOLVER(READER.job_count, READER.machine_count, READER.candidate, READER.procedure_count, READER.message,READER.T);
-	SOLVER.test();
+	SOLVER.test_mix();
         
 }
 

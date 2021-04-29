@@ -6,7 +6,8 @@ struct procedure
 {
 	int machine;
 	int time;
-	procedure(int a=-1,int b=-1):machine(a),time(b){}
+	int tabu_time;
+	procedure(int a = -1, int b = -1) :machine(a), time(b) { tabu_time = 0; }
 };
 class reader {
 public:
