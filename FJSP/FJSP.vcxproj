@@ -154,10 +154,12 @@
     <ClCompile Include="FJSP.cpp" />
     <ClCompile Include="reader.cpp" />
     <ClCompile Include="solver.cpp" />
+    <ClCompile Include="mae.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="reader.h" />
     <ClInclude Include="solver.h" />
+    <ClInclude Include="mae.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -16,6 +16,6 @@ public:
 	int candidate;
 	int* procedure_count;//对于每一个job有一个procedure_count；
 	int** T;//每个工件的每个工序可选择机器数
-	procedure** message;//message[i][j]表示第 i个作业的一个工序的信息；
+	procedure** message;//message[i]保存着第 i个作业的每一个工序的所有可能的机器的所有信息；
 	void loadfile(char* input_file_name);
 };

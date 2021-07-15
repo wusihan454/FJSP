@@ -6,11 +6,11 @@ int main()
 {
 	srand((unsigned)time(NULL));
 	reader READER;
-	char inputfile[256] = "m.txt.txt";
+	char inputfile[256] = "./data/fjsp.dauzere.03a.m5j10c5.txt";
 	READER.loadfile(inputfile);
-	solver SOLVER(READER.job_count, READER.machine_count, READER.candidate, READER.procedure_count, READER.message,READER.T);
-	SOLVER.test_mix();
-        
+	solver SOLVER1(READER.job_count, READER.machine_count, READER.candidate, READER.procedure_count, READER.message,READER.T);
+	SOLVER1.Its_mix(500);
+  
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单

@@ -1,6 +1,7 @@
 #include"solver.h"
 #include<algorithm>
 
+#include<climits>
 solver::solver(int a, int b, int c, int* d, procedure** e, int** f) :job_count(a), machine_count(b), candidate(c), procedure_count(d), message(e), T(f)
 {
 	job = new workpiece * [job_count];
@@ -10,7 +11,6 @@ solver::solver(int a, int b, int c, int* d, procedure** e, int** f) :job_count(a
 	}
 	machine.resize(machine_count);
 	critical_block.resize(machine_count);
-	tabu_section.resize(machine_count);
 }
 solver::~solver()
 {
@@ -193,6 +193,59 @@ void solver::sumCmax()
 		}
 	}
 }
+pair<int, int> solver::is_change_machine_legal(int a, int u, int b, int t)
+{
+	int left, right;//开区间
+	int jp, js, pv, sv;
+	int count = procedure_count[machine[a][u].job];
+	if (machine[a][u].seq == 0)
+	{
+		jp = 0;
+		left = 0;
+	}
+	else
+	{
+		int k = job[machine[a][u].job][machine[a][u].seq - 1].machine;
+		int s = -1;
+		for (int i = 0; i < machine[k].size(); i++)
+		{
+			if (machine[k][i].job == machine[a][u].job && machine[k][i].seq == machine[a][u].seq - 1)
+			{
+				s = i; break;
+			}
+		}
+		left = 0;
+		while (left < machine[b].size() && machine[b][left].Q >= machine[k][s].Q)//合法区间左区间
+			left++;
+		jp = machine[k][s].R + machine[k][s].dura_time;
+	}
+	if (machine[a][u].seq == count - 1)
+	{
+		js = 0;
+		right = machine[b].size() - 1;
+	}
+	else
+	{
+		int k = job[machine[a][u].job][machine[a][u].seq + 1].machine;
+		int s = -1;
+		for (int i = 0; i < machine[k].size(); i++)
+		{
+			if (machine[k][i].job == machine[a][u].job && machine[k][i].seq == machine[a][u].seq + 1)
+			{
+				s = i; break;
+			}
+		}
+		js = machine[k][s].Q + machine[k][s].dura_time;
+		right = machine[b].size() - 1;
+		while (right >= 0 && machine[b][right].Q <= machine[k][s].Q)
+			right--;
+	}
+	if (left > right)
+	{
+		return pair<int, int>(-1, -1);
+	}
+	else return pair<int, int>(left, right);
+}
 pair<int,int> solver::try_to_change_machine(int a, int u, int b,int t)//检测结束ok
 //试图将a机器上的u挪动到b机器上，且在b机器其执行时间为t,第一个返回值为预测的最好的解，第二个返回值为放入的位置；
 //-1表示插入在0之前
@@ -344,10 +397,11 @@ pair<change_machine,int> solver::find_change_machine(int ITER)
 			}
 		}
 	}
-	printf("best_c_tabu_change %d best_c_tabu_change %d\n\n", best_c_tabu_change, best_c_change);
+	//printf("best_c_tabu_change %d best_c_tabu_change %d\n\n", best_c_tabu_change, best_c_change);
+	if(best_change.empty()&& best_change_tabu.empty()) return  pair<change_machine, int>(change_machine(-1,-1,-1,-1,-1), -1);
 	if ((best_c_tabu_change < best_c_change && best_c_tabu_change < best_Cmax) || best_change.empty())//破除禁忌
 	{
-		printf("选择禁忌");
+		//printf("选择禁忌");
 		int select = rand() % best_change_tabu.size();
 		int job_index = machine[best_change_tabu[select].a][best_change_tabu[select].u].job;
 		int seq_index = machine[best_change_tabu[select].a][best_change_tabu[select].u].seq;
@@ -1000,20 +1054,18 @@ pair<insert,int> solver::findmove(int ITER)
 							else if (temp == best_c)  best_move.push_back(insert(i, true, k, end));
 						}
 					}
-					else {
-						//printf("不合法\n ");
-						break;
-					}
+					else	break;
+
 				}
 			}
 		}
 	}
-	if (best_move.empty()) printf("空\n");
-	printf("best_c_tabu: %d best_c: %d\n", best_c_tabu, best_c);
-	printf("best_move:\n");
+	if (best_move.empty()&& best_move_tabu.empty()) return pair<insert, int>(insert(-1,-1,-1,-1),-1);
+	//printf("best_c_tabu: %d best_c: %d\n", best_c_tabu, best_c);
+	//printf("best_move:\n");
 	if ((best_c_tabu < best_c && best_c_tabu < best_Cmax)|| best_move.empty())//破除禁忌
 	{
-		printf("选择禁忌");
+		//printf("选择禁忌");
 		
 		int select=rand() % best_move_tabu.size();
 		int a = best_move_tabu[select].i;
@@ -1103,7 +1155,7 @@ void solver::sum_critical_path()//按照我的算法必须先计算R值后计算Q值
 		}
 	}
 }
-void solver::test_change_machine()
+void solver::ts_change_machine()
 {
 	random_init();
 	sum_critical_path();
@@ -1167,7 +1219,7 @@ void solver::test_change_machine()
 		printf("%d\n\n", Cmax);
 	}
 }
-void solver::test_insert()
+void solver::ts_insert()
 {
 	random_init();
 	sum_critical_path();
@@ -1175,7 +1227,7 @@ void solver::test_insert()
 	int iter = 1;
 	int maxfail = 1000;
 	int mark = 0;
-	for (int i = 0; i < machine.size(); i++)
+	/*for (int i = 0; i < machine.size(); i++)
 	{
 		for (int j = 0; j < machine[i].size(); j++)
 			printf("%d %d %d %d  ", machine[i][j].job, machine[i][j].seq, machine[i][j].R, machine[i][j].dura_time);
@@ -1193,7 +1245,7 @@ void solver::test_insert()
 		for (int j = 0; j < machine[i].size(); j++)
 			printf("%d ", machine[i][j].R + machine[i][j].Q + machine[i][j].dura_time);
 		printf("\n");
-	}
+	}*/
 	while (mark < maxfail)
 	{
 
@@ -1209,6 +1261,10 @@ void solver::test_insert()
 			printf("%%%%%%%%%%%%\n");
 		}*/
 		pair<insert, int> temp1 = findmove(iter);
+		if (temp1.second == -1) {
+			//printf("不存在可以的交换");
+				break;
+		}
 		makemove(temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
 		sum_critical_path();
 		if (Cmax < best_Cmax)
@@ -1218,7 +1274,7 @@ void solver::test_insert()
 		}
 		else mark++;
 		iter++;
-		printf("makemove %d %d %d %d\n", temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
+		//printf("makemove %d %d %d %d\n", temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
 		/*for (int i = 0; i < machine.size(); i++)
 		{
 			for (int j = 0; j < machine[i].size(); j++)
@@ -1240,104 +1296,242 @@ void solver::test_insert()
 				printf(" %d %d ", critical_block[i][j].start_index, critical_block[i][j].end_index);
 			printf("\n");
 		}*/
-		printf("%d\n\n", Cmax);
+		//printf("%d\n\n", Cmax);
 	}
 }
-void solver::test_mix()
+void solver::ts_mix()
+{
+	//random_init();
+	//sum_critical_path();
+	//best_Cmax = Cmax;
+	tabu_section.clear();
+	tabu_section.resize(machine_count);
+	int iter = 1;
+	int maxfail = 1000;
+	int mark = 0;
+	if (candidate != 1)
+	{
+		while (mark < maxfail)
+		{
+			pair<insert, int> temp1 = findmove(iter);
+			pair<change_machine, int> temp2 = find_change_machine(iter);
+
+			if (temp1.second != -1 && temp2.second != -1)
+			{
+				if (temp1.second < temp2.second)//temp1比temp2更好
+				{
+					makemove(temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
+					//printf("makemove %d %d %d %d\n", temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
+				}
+				else
+				{
+					makechange(temp2.first.a, temp2.first.u, temp2.first.b, temp2.first.v, temp2.first.t);
+					//printf("makechange %d %d %d %d\n", temp2.first.a, temp2.first.u, temp2.first.b, temp2.first.v);
+				}
+			}
+			else if (temp1.second == -1 && temp2.second == -1)
+			{
+				//printf("没有可以选择交换或者插入的\n");
+				break;
+			}
+			else if (temp1.second == -1 && temp2.second != -1)
+			{
+				makechange(temp2.first.a, temp2.first.u, temp2.first.b, temp2.first.v, temp2.first.t);
+				//printf("makechange %d %d %d %d\n", temp2.first.a, temp2.first.u, temp2.first.b, temp2.first.v);
+			}
+			else if (temp1.second != -1 && temp2.second == -1)
+			{
+				makemove(temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
+				//printf("makemove %d %d %d %d\n", temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
+			}
+			sum_critical_path();
+			if (Cmax < best_Cmax)
+			{
+				best_Cmax = Cmax;
+				mark = 0;
+			}
+			else mark++;
+			iter++;
+		}
+	}
+	else
+	{
+		while (mark < maxfail)
+		{
+			pair<insert, int> temp1 = findmove(iter);
+			if (temp1.second != -1)
+			{
+				makemove(temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
+			}
+			else break;
+			sum_critical_path();
+			if (Cmax < best_Cmax)
+			{
+				best_Cmax = Cmax;
+				mark = 0;
+			}
+			else mark++;
+			iter++;
+		}
+
+	}
+	printf("%d\n\n", best_Cmax);
+	/*for (int i = 0; i < machine.size(); i++)
+		{
+			for (int j = 0; j < machine[i].size(); j++)
+				printf("%d %d %d %d  ", machine[i][j].job, machine[i][j].seq, machine[i][j].R, machine[i][j].dura_time);
+			printf("\n");
+		}
+		printf("********\n");
+		for (int i = 0; i < machine.size(); i++)
+		{
+			for (int j = 0; j < machine[i].size(); j++)
+				printf("%d ", machine[i][j].R + machine[i][j].Q + machine[i][j].dura_time);
+			printf("\n");
+		}
+		printf("********\n");
+		for (int i = 0; i < critical_block.size(); i++)
+		{
+			printf("%d:", i);
+			for (int j = 0; j < critical_block[i].size(); j++)
+				printf(" %d %d ", critical_block[i][j].start_index, critical_block[i][j].end_index);
+			printf("\n");
+		}*/
+}
+void solver::randommove()//back:false front:true  随机的移动还是基于关键快的，事实上，应该是针对所有operation的操作。
+{
+	bool mark = true;
+	int number = 0 ;
+	insert temp(0,false,0,0);//随意初始化
+	change_machine  temp1(0, 0, 0, 0, 0);
+	for (int i = 0; i < critical_block.size(); i++)
+	{
+		for (int j = 0; j < critical_block[i].size(); j++)
+		{
+
+			int start = critical_block[i][j].start_index;
+			int end = critical_block[i][j].end_index;
+			if (start == end) continue;
+			else
+			{
+				if (start + 1 == end)//只有两个元素单独考虑
+				{
+					if (is_move_back_legal(i, start, end))
+					{
+						number++;
+						if (rand() % number == 0)
+							temp = insert(i, false, start, end);
+					}
+					continue;
+				}
+				for (int k = start + 1; k <= end - 1; k++)//对于每一个中间的元素，分别试探移动到最前面最后面
+				{
+		
+					if (is_move_back_legal(i, k, end))//合法性
+					{
+						number++;
+						if (rand() % number == 0)
+							temp = insert(i, false, k, end);
+						
+					}
+					if (is_move_front_legal(i, start, k))
+					{
+						number++;
+						if (rand() % number == 0)
+							temp = insert(i,true, start, k);
+					}
+				}
+
+				for (int k = start + 2; k <= end; k++)//对于start移动其他所有元素之后
+				{
+				
+					if (is_move_back_legal(i, start, k))
+					{
+						number++;
+						if (rand() % number == 0)
+							temp = insert(i, false, start, k);
+					}
+					else {
+						break;
+					}
+				}
+				for (int k = end - 2; k >= start; k--)//对于end移动其他所有元素之前
+				{
+					if (is_move_front_legal(i, k, end))
+					{
+						number++;
+						if (rand() % number == 0)
+							temp = insert(i, true, k, end);
+					}
+					else {
+						break;
+					}
+				}
+			}
+		}
+	}
+	if (candidate != 1)
+	{
+		for (int i = 0; i < critical_block.size(); i++)
+		{
+			for (int j = 0; j < critical_block[i].size(); j++)
+			{
+
+				int start = critical_block[i][j].start_index;
+				int end = critical_block[i][j].end_index;
+				for (int k = start; k <= end; k++)
+				{
+					int job_index = machine[i][k].job, seq_index = machine[i][k].seq;
+					if (T[job_index][seq_index] == 1)
+						continue;
+					for (int l = 0; l < T[job_index][seq_index]; l++)
+					{
+						int choose = seq_index * candidate + l;
+						if (job[job_index][seq_index].machine == message[job_index][choose].machine)
+							continue;
+						pair<int, int> ww = is_change_machine_legal(i, k, message[job_index][choose].machine, message[job_index][choose].time);
+						if (ww.first != -1)
+						{
+							for (int m = 0; m < ww.second - ww.first + 2; m++)
+							{
+								number++;
+								if (rand() % number == 0)
+								{
+									mark = false;
+									temp1 = change_machine(i, k, message[job_index][choose].machine, ww.first - 1 + m, message[job_index][choose].time);
+
+								}
+							}
+						}
+
+					}
+				}
+			}
+		}
+	}
+	if (mark) makemove(temp.i, temp.front, temp.u, temp.v);//引发异常
+	else makechange(temp1.a, temp1.u, temp1.b, temp1.v, temp1.t);
+}
+void solver::Its_mix(int maxiter)
 {
 	random_init();
 	sum_critical_path();
 	best_Cmax = Cmax;
-	int iter = 1;
-	int maxfail = 1000;
-	int mark = 0;
-	for (int i = 0; i < machine.size(); i++)
+	int count = 0;
+	while (count < maxiter)//做maxiter次数的ts
 	{
-		for (int j = 0; j < machine[i].size(); j++)
-			printf("%d %d %d %d  ", machine[i][j].job, machine[i][j].seq, machine[i][j].R, machine[i][j].dura_time);
-		printf("\n");
-	}
-	for (int i = 0; i < critical_block.size(); i++)
-	{
-		printf("%d:", i);
-		for (int j = 0; j < critical_block[i].size(); j++)
-			printf(" %d %d ", critical_block[i][j].start_index, critical_block[i][j].end_index);
-		printf("\n");
-	}
-	for (int i = 0; i < machine.size(); i++)
-	{
-		for (int j = 0; j < machine[i].size(); j++)
-			printf("%d ", machine[i][j].R + machine[i][j].Q + machine[i][j].dura_time);
-		printf("\n");
-	}
-	while (mark < maxfail)
-	{
-
-		pair<insert,int> temp1 = findmove(iter);
-		pair<change_machine, int> temp2 = find_change_machine(iter);
-		if (temp1.second < temp2.second)//temp1比temp2更好
-		{
-			makemove(temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
-			printf("makemove %d %d %d %d\n", temp1.first.i, temp1.first.front, temp1.first.u, temp1.first.v);
-		}
-		else
-		{
-			makechange(temp2.first.a, temp2.first.u, temp2.first.b, temp2.first.v, temp2.first.t);
-			printf("makechange %d %d %d %d\n", temp2.first.a, temp2.first.u, temp2.first.b, temp2.first.v);
-		}
-	
+		ts_mix();
 		sum_critical_path();
-		if (Cmax < best_Cmax)
+		for (int i = 0; i < 10; i++)
 		{
-			best_Cmax = Cmax;
-			mark = 0;
+			randommove();
+			sum_critical_path();
 		}
-		else mark++;
-		iter++;
-		/*for (int i = 0; i < machine.size(); i++)
-		{
-			for (int j = 0; j < machine[i].size(); j++)
-				printf("%d %d %d %d  ", machine[i][j].job, machine[i][j].seq, machine[i][j].R, machine[i][j].dura_time);
-			printf("\n");
-		}
-		printf("********\n");
-		for (int i = 0; i < machine.size(); i++)
-		{
-			for (int j = 0; j < machine[i].size(); j++)
-				printf("%d ", machine[i][j].R + machine[i][j].Q + machine[i][j].dura_time);
-			printf("\n");
-		}
-		printf("********\n");
-		for (int i = 0; i < critical_block.size(); i++)
-		{
-			printf("%d:", i);
-			for (int j = 0; j < critical_block[i].size(); j++)
-				printf(" %d %d ", critical_block[i][j].start_index, critical_block[i][j].end_index);
-			printf("\n");
-		}*/
-		printf("%d\n\n", Cmax);
+		count++;
 	}
-	for (int i = 0; i < machine.size(); i++)
-		{
-			for (int j = 0; j < machine[i].size(); j++)
-				printf("%d %d %d %d  ", machine[i][j].job, machine[i][j].seq, machine[i][j].R, machine[i][j].dura_time);
-			printf("\n");
-		}
-		printf("********\n");
-		for (int i = 0; i < machine.size(); i++)
-		{
-			for (int j = 0; j < machine[i].size(); j++)
-				printf("%d ", machine[i][j].R + machine[i][j].Q + machine[i][j].dura_time);
-			printf("\n");
-		}
-		printf("********\n");
-		for (int i = 0; i < critical_block.size(); i++)
-		{
-			printf("%d:", i);
-			for (int j = 0; j < critical_block[i].size(); j++)
-				printf(" %d %d ", critical_block[i][j].start_index, critical_block[i][j].end_index);
-			printf("\n");
-		}
+
+
+
 }
 	
 /*for (int t = 0; t < tabu_section.size();t++)

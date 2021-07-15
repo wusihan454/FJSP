@@ -2,7 +2,6 @@
 #include"reader.h"
 #include<vector>
 #include<queue>
-#include<climits>
 struct workpiece
 {
 	int machine;//机器
@@ -18,7 +17,7 @@ struct operation
 	int Q;
 	int R;//从起点到当前操作的时间
 	int du;//后续节点的个数
-	operation() {}
+	operation(){}
 	operation(int a, int c, int d,int e) :job(a),seq(c),R(d), dura_time(e)
 	{
 	}
@@ -63,19 +62,6 @@ struct TABU_section
 
 class solver {
 private:
-	int job_count;
-	int machine_count;
-	int candidate;
-	int* procedure_count;//对于每一个job有一个procedure_count；
-	int** T;
-	procedure** message;
-	workpiece** job;
-	int** tabu_change_machine;//禁忌交换机器
-	vector<vector<TABU_section>> tabu_section;
-	vector<vector<operation>> machine;
-	vector<vector<block>> critical_block;
-	int Cmax;
-	int best_Cmax;
 	void random_init();//随机构造初始解
 	void sum_critical_path();
 	void sumQ();
@@ -91,11 +77,28 @@ private:
 	bool is_move_front_legal(int i, int u, int v);
 	bool is_move_back_legal(int i, int u, int v);
 	void makechange(int a,int u,int b,int v,int t);
+	void randommove();
+	pair<int, int> is_change_machine_legal(int a, int u, int b, int t);//返回合法区间的left,right值，从left的前面到right的后面都可以插入
 	//void sum_critical_block();
 public:
+	int job_count;
+	int machine_count;
+	int candidate;
+	int* procedure_count;//对于每一个job有一个procedure_count；
+	int** T;
+	procedure** message;
+	workpiece** job;//保存现在所有job的所有工序实际上在哪个机器上
+	int** tabu_change_machine;//禁忌交换机器
+	vector<vector<TABU_section>> tabu_section;
+	vector<vector<operation>> machine;
+	vector<vector<block>> critical_block;
+	int Cmax;
+	int best_Cmax;
 	solver(int a, int b, int c, int* d, procedure** e,int** f);
-	void test_change_machine();
-	void test_insert();
-	void test_mix();
+	void ts_change_machine();
+	void ts_insert();
+	void ts_mix();
+	void Its_mix(int iter);
+	//int  get_jobcount(){return job_count;}
 	~solver();
 };

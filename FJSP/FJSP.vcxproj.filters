@@ -24,12 +24,18 @@
     <ClCompile Include="solver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mae.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="reader.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="solver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mae.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

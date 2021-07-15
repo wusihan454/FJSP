@@ -1,4 +1,5 @@
-﻿  solver.cpp
+﻿  FJSP.cpp
+  solver.cpp
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(73): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(75): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(80): warning C4018: “<”: 有符号/无符号不匹配
@@ -8,66 +9,59 @@ C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(128): warning C4018: “<”: 有符
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(130): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(135): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(168): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(214): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(222): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(235): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(304): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(306): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(413): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(439): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(465): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(485): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(494): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(508): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(530): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(574): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(597): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(619): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(647): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(656): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(210): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(218): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(231): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(199): warning C4101: “sv”: 未引用的局部变量
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(199): warning C4101: “pv”: 未引用的局部变量
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(267): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(275): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(288): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(357): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(359): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(467): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(493): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(519): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(539): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(548): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(562): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(584): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(628): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(651): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(673): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(699): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(701): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(710): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(727): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(756): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(803): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(809): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(832): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(834): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1084): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1086): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1088): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1095): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1117): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1119): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1123): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1126): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1130): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1132): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1153): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1155): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1160): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1162): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(753): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(781): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(810): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(857): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(863): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(886): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(888): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1063): warning C4305: “参数”: 从“int”到“bool”截断
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1136): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1138): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1140): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1147): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1169): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1171): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1175): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1178): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1180): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1182): warning C4018: “<”: 有符号/无符号不匹配
 C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1184): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1187): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1191): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1193): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1254): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1256): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1260): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1263): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1267): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1269): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1320): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1322): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1327): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1329): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1334): warning C4018: “<”: 有符号/无符号不匹配
-C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1337): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1205): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1207): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1212): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1214): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1407): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1409): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1475): warning C4018: “<”: 有符号/无符号不匹配
+C:\Users\belle\Desktop\FJSP\FJSP\solver.cpp(1477): warning C4018: “<”: 有符号/无符号不匹配
+  mae.cpp
   正在生成代码
-  2 of 826 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+  1 of 832 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    20 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   FJSP.vcxproj -> C:\Users\belle\Desktop\FJSP\Release\FJSP.exe
